@@ -41,7 +41,7 @@ func main() {
 	if len(chunks) != 0 {
 		for idx, c := range chunks {
 			fmt.Println("#", idx, "from", c.Descriptor.SrcIP, "to", c.Descriptor.DestIP, "(", c.Descriptor.Size, "bytes )")
-			err := spexplode.Explode(&c, os.Args[2])
+			err := spexplode.Explode(&c, idx, os.Args[2])
 			if err != nil {
 				fmt.Println("Failed to explode chunk ", idx, ":", err)
 			}

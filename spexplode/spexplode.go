@@ -13,7 +13,7 @@ import (
 	"github.com/NothNoth/SSLSplitParser/spparser"
 )
 
-func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
+func Explode(chunk *spparser.Chunk, idx int, destFolder string) (err error) {
 	var ipLink string
 	if chunk.Descriptor.SrcIP > chunk.Descriptor.DestIP {
 		ipLink = fmt.Sprintf("%s-%s", chunk.Descriptor.SrcIP, chunk.Descriptor.DestIP)
@@ -24,7 +24,7 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 	os.Mkdir(path.Join(destFolder, ipLink), os.ModePerm)
 
 	//Write descriptor
-	fName := fmt.Sprintf("%d.txt", chunk.Descriptor.Date)
+	fName := fmt.Sprintf("%d_%d.txt", idx, chunk.Descriptor.Date)
 	f, err := os.Create(path.Join(destFolder, ipLink, fName))
 	defer f.Close()
 	if err != nil {
@@ -48,7 +48,7 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 			dataReader := bufio.NewReader(bytes.NewReader(chunk.Data))
 			resp, _ := http.ReadResponse(dataReader, nil)
 			if resp != nil && resp.ContentLength != 0 {
-				fName := fmt.Sprintf("%d.http", chunk.Descriptor.Date)
+				fName := fmt.Sprintf("%d_%d.http", idx, chunk.Descriptor.Date)
 				f, err := os.Create(path.Join(destFolder, ipLink, fName))
 				defer f.Close()
 				if err != nil {
@@ -59,8 +59,8 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 				resp.Body.Close()
 
 				cookies := resp.Cookies()
-				for idx, cook := range cookies {
-					fName := fmt.Sprintf("%d.cookie%d", chunk.Descriptor.Date, idx)
+				for cidx, cook := range cookies {
+					fName := fmt.Sprintf("%d_%d.cookie%d", idx, chunk.Descriptor.Date, cidx)
 					f, err := os.Create(path.Join(destFolder, ipLink, fName))
 					defer f.Close()
 					if err != nil {
@@ -73,7 +73,7 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 			dataReader := bufio.NewReader(bytes.NewReader(chunk.Data))
 			req, _ := http.ReadRequest(dataReader)
 			if req.ContentLength != 0 {
-				fName := fmt.Sprintf("%d.post", chunk.Descriptor.Date)
+				fName := fmt.Sprintf("%d_%d.post", idx, chunk.Descriptor.Date)
 				f, err := os.Create(path.Join(destFolder, ipLink, fName))
 				defer f.Close()
 				if err != nil {
@@ -85,8 +85,8 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 			}
 
 			cookies := req.Cookies()
-			for idx, cook := range cookies {
-				fName := fmt.Sprintf("%d.cookie%d", chunk.Descriptor.Date, idx)
+			for cidx, cook := range cookies {
+				fName := fmt.Sprintf("%d_%d.cookie%d", idx, chunk.Descriptor.Date, cidx)
 				f, err := os.Create(path.Join(destFolder, ipLink, fName))
 				defer f.Close()
 				if err != nil {
@@ -96,7 +96,7 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 			}
 		}
 
-		fName := fmt.Sprintf("%d.raw", chunk.Descriptor.Date)
+		fName := fmt.Sprintf("%d_%d.raw", idx, chunk.Descriptor.Date)
 		f, err := os.Create(path.Join(destFolder, ipLink, fName))
 		defer f.Close()
 		if err != nil {

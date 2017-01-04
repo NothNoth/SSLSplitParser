@@ -79,8 +79,8 @@ func parseDescriptor(dString string) (*ChunkDescriptor, error) {
 	}
 
 	d.Date, _ = parseDate(strings.Join(exploded[0:3], " "))
-	d.DestIP, d.DestPort, _ = parseIP(exploded[3])
-	d.SrcIP, d.SrcPort, _ = parseIP(exploded[5])
+	d.SrcIP, d.SrcPort, _ = parseIP(exploded[3])
+	d.DestIP, d.DestPort, _ = parseIP(exploded[5])
 	d.Size, _ = parseSize(exploded[6])
 
 	return &d, nil
@@ -94,18 +94,18 @@ func parseChunk(reader *bufio.Reader) (*Chunk, error) {
 	}
 
 	desc, err := parseDescriptor(chunkDescriptor)
-	if err != nil {
+	if err != nil || desc == nil {
 		return nil, err
 	}
 
 	var d []byte
-	d, err = reader.Peek(int(desc.Size))
-
-	if err != nil {
-		//incomplete read
-		return nil, err
+	for i := 0; i < int(desc.Size); i++ {
+		b, err := reader.ReadByte()
+		if err != nil {
+			return nil, err
+		}
+		d = append(d, b)
 	}
-	reader.Discard(int(desc.Size))
 
 	return &Chunk{Descriptor: *desc, Data: d}, nil
 }
@@ -121,12 +121,11 @@ func ParseLog(logfile string) (chunks []Chunk, err error) {
 	reader := bufio.NewReader(f)
 
 	for {
-		var c *Chunk
-		c, err = parseChunk(reader)
-		if err != nil {
-			return
+		c, perr := parseChunk(reader)
+		if perr != nil {
+			return chunks, perr
 		}
+
 		chunks = append(chunks, *c)
 	}
-
 }
