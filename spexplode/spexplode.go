@@ -57,6 +57,17 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 				body, err := ioutil.ReadAll(resp.Body)
 				f.Write(body)
 				resp.Body.Close()
+
+				cookies := resp.Cookies()
+				for idx, cook := range cookies {
+					fName := fmt.Sprintf("%d.cookie%d", chunk.Descriptor.Date, idx)
+					f, err := os.Create(path.Join(destFolder, ipLink, fName))
+					defer f.Close()
+					if err != nil {
+						return err
+					}
+					f.WriteString(cook.String())
+				}
 			}
 		} else if bytes.HasPrefix(chunk.Data, HTTPPOST) {
 			dataReader := bufio.NewReader(bytes.NewReader(chunk.Data))
@@ -71,6 +82,17 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 				body, err := ioutil.ReadAll(req.Body)
 				f.Write(body)
 				req.Body.Close()
+			}
+
+			cookies := req.Cookies()
+			for idx, cook := range cookies {
+				fName := fmt.Sprintf("%d.cookie%d", chunk.Descriptor.Date, idx)
+				f, err := os.Create(path.Join(destFolder, ipLink, fName))
+				defer f.Close()
+				if err != nil {
+					return err
+				}
+				f.WriteString(cook.String())
 			}
 		}
 
