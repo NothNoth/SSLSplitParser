@@ -46,16 +46,17 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 
 		if bytes.HasPrefix(chunk.Data, HTTPHeader) {
 			dataReader := bufio.NewReader(bytes.NewReader(chunk.Data))
-			req, _ := http.ReadResponse(dataReader, nil)
-			if req.ContentLength != 0 {
+			resp, _ := http.ReadResponse(dataReader, nil)
+			if resp != nil && resp.ContentLength != 0 {
 				fName := fmt.Sprintf("%d.http", chunk.Descriptor.Date)
 				f, err := os.Create(path.Join(destFolder, ipLink, fName))
 				defer f.Close()
 				if err != nil {
 					return err
 				}
-				body, err := ioutil.ReadAll(req.Body)
+				body, err := ioutil.ReadAll(resp.Body)
 				f.Write(body)
+				resp.Body.Close()
 			}
 		} else if bytes.HasPrefix(chunk.Data, HTTPPOST) {
 			dataReader := bufio.NewReader(bytes.NewReader(chunk.Data))
@@ -69,6 +70,7 @@ func Explode(chunk *spparser.Chunk, destFolder string) (err error) {
 				}
 				body, err := ioutil.ReadAll(req.Body)
 				f.Write(body)
+				req.Body.Close()
 			}
 		}
 
