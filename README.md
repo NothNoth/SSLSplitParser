@@ -1,14 +1,6 @@
-# spparser
-
-Parses an SSLSplit log file into descriptors and data chunks.
-
-# spexplode
-
-Explodes aloaded SSSplit structure to folders and files
-
 # spextract
 
-Basic main function parsing an SSLSplit log and exploding it into a given output folder
+__spextract__ reads an __SSLSplit log__ and explodes it into a given output folder for easier analysis.
 
 Building:
 
@@ -34,7 +26,7 @@ Usage:
     # 11 from 172.16.42.112 to 2.16.117.16 ( 1448 bytes )
     # 12 from 172.16.42.112 to 2.16.117.16 ( 1448 bytes )
     ...
-    
+
     ls -R output/
     output/:
     172.16.42.112-104.85.54.199    185.33.222.249-172.16.42.112  216.52.1.12-172.16.42.112     40.101.60.226-172.16.42.185   87.250.251.119-172.16.42.112
@@ -179,3 +171,12 @@ Usage:
 
     output/95.131.137.7-172.16.42.112:
     1483372416.raw  1483372416.txt
+
+# spparser
+
+Generic package for parsing an SSLSplit log file into descriptors and data chunks.
+
+# spexplode
+
+Generic dirty package for exporting a loaded SSLSplit structure (taken from spparser) to folders and files
+
